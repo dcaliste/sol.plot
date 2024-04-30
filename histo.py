@@ -22,5 +22,5 @@ powers = numpy.array(list(map(int, histo.keys())))
 
 cumul = 0.
 for p in range(powers.max(), -1, -50):
-    cumul += histo[p]
+    cumul += histo.get(p, 0.)
     print(p, cumul)
