@@ -47,5 +47,5 @@ set arrow nohead from today+1, graph 0 to today+1, graph 1 lt 2 dt 3 lw 3 front
 set title sprintf("solar production of the last 365 days")
 
 plot "< ./split.py" u 1:2:($3 == 0 ? 1/0 : $3) w l lc palette lw 5, \
-     raise(x <= today ? year : year - 1, x, lat, lon)*3600 w filledcurve above lc rgb '#44000000', \
+     raise(x <= today ? year : year - 1, x, lat, lon)*3600 w filledcurve x lc rgb '#44000000', \
      set(x <= today ? year : year - 1, x, lat, lon)*3600 w filledcurve y = 22*3600 lc rgb '#44000000'
