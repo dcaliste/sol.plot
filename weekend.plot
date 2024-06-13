@@ -1,7 +1,7 @@
 #!/usr/bin/gnuplot
 
-#set term pdfcairo
-#set output "weekend.pdf"
+set term pdfcairo
+set output "weekend.pdf"
 
 unset key
 
