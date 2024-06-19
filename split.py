@@ -7,7 +7,7 @@ import datetime
 d = numpy.loadtxt("history" if len(sys.argv) < 2 else sys.argv[1])
 
 prev = None
-for (t, v) in d:
+for (t, v, c) in d:
     dt = datetime.datetime.fromtimestamp(t)
     if prev is not None and prev != dt.day:
         print()
