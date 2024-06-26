@@ -6,7 +6,9 @@
 set style fill solid
 set boxwidth 30
 
-set xtics 200
+set key right
+
+set xtics 200 rotate by -45
 
 set xlabel "available power (W)"
 set ylabel "average duration per day (hours)"
