@@ -30,5 +30,7 @@ else:
   while f < d[-1, 0] - 24 * 3600:
     vals = conso(d, f)
     if vals[2] > 0.:
-      print(f, *vals)
+      at = datetime.datetime.fromtimestamp(f, tz = datetime.timezone.utc)
+      h = datetime.datetime(at.year, at.month, at.day, 22).timestamp()
+      print(h, *vals)
     f += 24 * 3600
