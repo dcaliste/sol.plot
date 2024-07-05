@@ -12,7 +12,8 @@ step = 50
 
 histo = {}
 tprev = None
-for (t, v) in d:
+for vals in d:
+    t, v = vals[:2]
     key = int(v / step) * step
     if v > 0. and tprev is not None:
         histo[key] = histo.get(key, 0.) + (t - tprev) / ndays
