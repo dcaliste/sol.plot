@@ -43,24 +43,20 @@ lon = 5 + 41.496 / 60
 
 # My panels
 alpha_panel = numpy.pi * 34 / 180
-azimuth_panel = numpy.pi * 217 / 180
+azimuth_panel = numpy.pi * 201 / 180
 #alpha_panel = numpy.pi * 80 / 180
 #azimuth_panel = numpy.pi * 210 / 180
 
 # In home referential (ux is north and uy is East)
-def xyz_sun(d, h):
-  alpha, azimuth = sun(d, h, lat, lon)
-  ux = numpy.cos(alpha) * numpy.cos(azimuth)
-  uy = numpy.cos(alpha) * numpy.sin(azimuth)
-  uz = numpy.sin(alpha)
-  return ux, uy, uz
-
 ux_panel = numpy.cos(alpha_panel) * numpy.cos(azimuth_panel)
 uy_panel = numpy.cos(alpha_panel) * numpy.sin(azimuth_panel)
 uz_panel = numpy.sin(alpha_panel)
 
 def light(d, h):
-  ux, uy, uz = xyz_sun(d, h)
+  alpha, azimuth = sun(d, h, lat, lon)
+  ux = numpy.cos(alpha) * numpy.cos(azimuth)
+  uy = numpy.cos(alpha) * numpy.sin(azimuth)
+  uz = numpy.sin(alpha)
   scal = ux * ux_panel + uy * uy_panel + uz * uz_panel
   return numpy.where(numpy.logical_or(uz < 0, scal < 0), 0, scal)
 
@@ -74,7 +70,8 @@ if __name__ == "__main__":
       day = datetime.datetime(fr.year, fr.month, fr.day, 12, tzinfo = datetime.timezone.utc)
       d = day.timetuple().tm_yday
       H = numpy.linspace(5.5, 22.5, N)
-      print(d, H[numpy.argmax(light(d, H))])
+      at = numpy.argmax(light(d, H))
+      print(d, H[at], sun(d, H, lat, lon)[0][at])
       fr += datetime.timedelta(1)
   elif len(sys.argv) == 3:
     fr = datetime.date.fromisoformat(sys.argv[1])

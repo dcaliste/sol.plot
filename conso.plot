@@ -28,7 +28,7 @@ ord = day % 10 == 1 ? "st" : \
 set xdata time
 set timefmt "%s"
 
-set key left
+set key left opaque
 
 set xlabel sprintf("%s, %d%s %d", monthStr, day, ord, year)
 set ylabel "power (W)"
@@ -43,6 +43,7 @@ plot [from:from + 24 * 3600 - 300] [:900] \
      "" u ($1+7200):($2 - ($3 < 0 ? 0 : $3)) w filledcurve above x fs transparent solid 0.75 noborder lt 3 t sprintf("save: %.3f kWh", save), \
      "" u ($1+7200):2 w lp lt 1 t "solar production", \
      "" u ($1+7200):($2-$3) w lp lt 2 t "electricity consumption", \
+     sprintf("< ./theory.py %d-%02d-%02d", year, month, day) u (from + $1 * 3600):($2 * 900) w l lt -1 t "theoretical production", \
      "pierrick" u ($1+7200):($2/4) w lp lt 4 pt 7 ps 0.5 t "Pierrick"
 
 #set term qt
