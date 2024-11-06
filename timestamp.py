@@ -3,4 +3,4 @@
 import sys
 import datetime
 
-print(datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d").timestamp())
+print(datetime.datetime.fromisoformat(sys.argv[1]).timestamp())
