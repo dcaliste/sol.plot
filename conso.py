@@ -38,9 +38,11 @@ else:
   integral = [0., ] * 3
   s = datetime.datetime.fromtimestamp(d[0, 0], tz = datetime.timezone.utc)
   f = datetime.datetime(s.year, s.month, s.day + 1, tzinfo = datetime.timezone.utc).timestamp()
+  n = 0
   while f < d[-1, 0] - 24 * 3600:
     vals = conso(d, f)
     if vals[2] > 0. or numpy.isnan(vals[2]):
+      n += 1
       at = datetime.datetime.fromtimestamp(f, tz = datetime.timezone.utc)
       h = datetime.datetime(at.year, at.month, at.day, 22).timestamp()
       print(h, *vals)
@@ -48,4 +50,7 @@ else:
       integral[1] += vals[1]
       integral[2] += vals[2]
     f += 24 * 3600
+  print("# save production edf")
   print("#", *integral)
+  print("# avg per year")
+  print("#", *(numpy.array(integral) * 365 / n))
