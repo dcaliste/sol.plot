@@ -42,10 +42,10 @@ lat = 45 + 13.428 / 60
 lon = 5 + 41.496 / 60
 
 # My panels
-alpha_panel = numpy.pi * 34 / 180
-azimuth_panel = numpy.pi * 201 / 180
-#alpha_panel = numpy.pi * 80 / 180
-#azimuth_panel = numpy.pi * 210 / 180
+alpha_panel = numpy.pi * 54 / 180
+azimuth_panel = numpy.pi * 207 / 180
+#alpha_panel = numpy.pi * 82 / 180
+#azimuth_panel = numpy.pi * 255 / 180
 
 # In home referential (ux is north and uy is East)
 ux_panel = numpy.cos(alpha_panel) * numpy.cos(azimuth_panel)
@@ -58,7 +58,25 @@ def light(d, h):
   uy = numpy.cos(alpha) * numpy.sin(azimuth)
   uz = numpy.sin(alpha)
   scal = ux * ux_panel + uy * uy_panel + uz * uz_panel
-  return numpy.where(numpy.logical_or(uz < 0, scal < 0), 0, scal)
+  #att = numpy.where(alpha < numpy.pi / 6., 0.3 + 0.7 * numpy.sin(alpha * 6. / 2.), 1.)
+  att = 1.
+  return numpy.where(numpy.logical_or(uz < 0, scal < 0), 0, scal * att)
+
+def angle(d, h):
+  alpha, azimuth = sun(d, h, lat, lon)
+  ux = numpy.cos(alpha) * numpy.cos(azimuth)
+  uy = numpy.cos(alpha) * numpy.sin(azimuth)
+  uz = numpy.sin(alpha)
+  scal = ux * ux_panel + uy * uy_panel + uz * uz_panel
+  return numpy.where(numpy.logical_or(uz < 0, scal < 0), numpy.pi / 2, numpy.arccos(scal))
+
+def panel_factor(angle):
+  alpha = 0.88
+  M = 775
+  return numpy.where(angle > alpha, 0., M * (1 - angle * angle / alpha / alpha))
+
+def light_corr(d, h):
+  return panel_factor(angle(d, h) * 2 / numpy.pi)
 
 if __name__ == "__main__":
   N = 10000
@@ -70,7 +88,7 @@ if __name__ == "__main__":
       day = datetime.datetime(fr.year, fr.month, fr.day, 12, tzinfo = datetime.timezone.utc)
       d = day.timetuple().tm_yday
       H = numpy.linspace(5.5, 22.5, N)
-      at = numpy.argmax(light(d, H))
+      at = numpy.argmax(light_corr(d, H))
       print(d, H[at], sun(d, H, lat, lon)[0][at])
       fr += datetime.timedelta(1)
   elif len(sys.argv) == 3:
@@ -80,13 +98,13 @@ if __name__ == "__main__":
       day = datetime.datetime(fr.year, fr.month, fr.day, 12, tzinfo = datetime.timezone.utc)
       d = day.timetuple().tm_yday
       H = numpy.linspace(5.5, 22.5, N)
-      print(day.timestamp(), numpy.trapz(light(d, H), H))
+      print(day.timestamp(), numpy.trapz(light_corr(d, H), H))
       fr += datetime.timedelta(1)
   elif len(sys.argv) == 2:
     day = datetime.date.fromisoformat(sys.argv[1])
     day = datetime.datetime(day.year, day.month, day.day, 0, tzinfo = datetime.timezone.utc)
     d = day.timetuple().tm_yday
     H = numpy.linspace(5.5, 22.5, N)
-    for h, l in zip(H, light(d, H)):
+    for h, l in zip(H, light_corr(d, H)):
       print(h, l)
     

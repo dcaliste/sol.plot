@@ -32,10 +32,12 @@ lat = 45 + 13.428 / 60
 lon = 5 + 41.496 / 60
 
 # My panels
-alpha_panel = pi * 34 / 180
-azimuth_panel = pi * 217 / 180
-#alpha_panel = pi * 80 / 180
-#azimuth_panel = pi * 210 / 180
+#alpha_panel = pi * 56 / 180
+#azimuth_panel = pi * 200 / 180
+alpha_panel = pi * 54 / 180
+azimuth_panel = pi * 207 / 180
+#alpha_panel = pi * 81 / 180
+#azimuth_panel = pi * 245 / 180
 
 # In home referential (ux is North and uy is East)
 ux_sun(y, d, h) = cos(alpha(y, d, h, lat, lon)) * cos(azimuth(y, d, h, lat, lon))
@@ -48,6 +50,22 @@ uz_panel = sin(alpha_panel)
 
 scal(y, d, h) = ux_sun(y, d, h) * ux_panel + uy_sun(y, d, h) * uy_panel + uz_sun(y, d, h) * uz_panel
 light(y, d, h) = uz_sun(y, d, h) < 0 || scal(y, d, h) < 0 ? 0 : scal(y, d, h)
+angle(y, d, h) = uz_sun(y, d, h) < 0 || scal(y, d, h) < 0 ? 1/0 : acos(scal(y, d, h))
+
+alpha = 69. / 90.
+M = 640. / 745.
+a = (1 - alpha * M) / alpha / (alpha-1)
+b = M - a
+factor(rad) = 545 * (a * ang * ang * 4 / pi / pi + b * ang * 2 / pi) + 200
+
+light_corr(y, d, h) = factor(angle(y, d, h))
+
+ux_sky(alpha, azimuth) = cos(alpha) * cos(azimuth)
+uy_sky(alpha, azimuth) = cos(alpha) * sin(azimuth)
+uz_sky(alpha, azimuth) = sin(alpha)
+
+scal_sky(alpha, azimuth) = ux_sky(alpha, azimuth) * ux_panel + uy_sky(alpha, azimuth) * uy_panel + uz_sky(alpha, azimuth) * uz_panel
+light_sky(alpha, azimuth) = uz_sky(alpha, azimuth) < 0 || scal_sky(alpha, azimuth) < 0 ? 0 : scal_sky(alpha, azimuth)
 
 set(y, d, lat, lon) = 12 + acos(- sin(decl(y, d)) * sin(lat * pi /180) / cos(decl(y, d)) / cos(lat * pi / 180)) * 180 / pi / 15 - 4 * (lon - 15 * (1+dst(y, d))) / 60 - EoT(y, d) / 60
 raise(y, d, lat, lon) = 12 - acos(- sin(decl(y, d)) * sin(lat * pi /180) / cos(decl(y, d)) / cos(lat * pi / 180)) * 180 / pi / 15 - 4 * (lon - 15 * (1+dst(y, d))) / 60 - EoT(y, d) / 60
